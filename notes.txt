@@ -1,0 +1,6 @@
+setup a node project - npm init -y
+initilze git
+
+install hardhat - npm install --save-dev hardhat
+
+create a hardhat config file - npx hardhat
