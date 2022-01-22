@@ -4,3 +4,14 @@ initilze git
 install hardhat - npm install --save-dev hardhat
 
 create a hardhat config file - npx hardhat
+config hardhat.config.js to use the specific solidity version in which we will be writing contracts
+
+create smart contracts in contracts/ directory
+
+compile(to EVM bytecode) - npx hardhat compile
+compile creats a artifacts directory - it holds the compiled artifacts (bytecode and metadata)
+and cache directory - add both to gitignore
+
+scripts/deploy.js - contains the deploy script to deploy our contract
+
+test/ - for each .sol file create a test.js file to write the script to test the properties of the contract

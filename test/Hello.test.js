@@ -1,0 +1,1 @@
+// test for the Hello.sol contract
