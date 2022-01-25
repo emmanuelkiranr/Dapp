@@ -6,12 +6,111 @@ install hardhat - npm install --save-dev hardhat
 create a hardhat config file - npx hardhat
 config hardhat.config.js to use the specific solidity version in which we will be writing contracts
 
-create smart contracts in contracts/ directory
+install plugins
 
+
+<--------------------------------------------------END-------------------------------------------------->
+
+create smart contracts in contracts/ directory with license => // SPDX-License-Identifier: MIT
+
+// syntax for declaring properties
+    [type] [visibility modifier] [identifier]
+
+<--------------------------------------------------END-------------------------------------------------->
+
+// constructor fn is called when the smart contract is deployed/created
+    This is useful when we want the contract to implicitely start execution (while deploying/testing)
+    we can write a parameterized constructor and pass the argument during testing and since the constructor is
+    called only once, that time it takes this argument and starts executing the contract
+    
+<--------------------------------------------------END-------------------------------------------------->
+
+Setter method => It is a function that requires a transaction because it modifies the property of the contract
+    
+    Its a function that sets a value to the variable [ie changing the property of a variable, In blockchain terms
+    it means writing the value to the blockchain (ie transaction) ]
+    Since any changes occur to a variable's state that is stored in blockchain it costs fee
+    These changes are called 'transactions' since it involves interacting[writing data] to the blockchain
+
+Getter method => Read-only methods do not cost anything.
+
+view keyword => marks this function as read-only
+
+returns keyword => marks the return type in the brackets eg returns (string memory)
+
+<--------------------------------------------------END-------------------------------------------------->
+
+// Compile contract
 compile(to EVM bytecode) - npx hardhat compile
 compile creats a artifacts directory - it holds the compiled artifacts (bytecode and metadata)
 and cache directory - add both to gitignore
 
+// npx hardhat compile 
+EVM cannot execute Solidity code directly: we first need to compile it into EVM bytecode.
+This will create a artifacts folder in our project which has the Hello.json file which contains the ABI 
+and byte code of our smart contract. This is the output of the Solidity compiler
+The ABI was generated for us by hardhat automatically when it compiled our contract.
+
+ABI stands for “Application Binary Interface” and it’s a way of describing the interface of our contract
+ - it tells our app what functions can be called, how they can be called and what they return.
+
+<--------------------------------------------------END-------------------------------------------------->
+
+// Test/Deplpoy the contract
+
 scripts/deploy.js - contains the deploy script to deploy our contract
 
-test/ - for each .sol file create a test.js file to write the script to test the properties of the contract
+    To deploy the contract we use scripts 
+        We use "ethers" in our script, so we need to install it and the @nomiclabs/hardhat-ethers plugin which 
+        brings to Hardhat the Ethereum library ethers.js, which allows you to interact with the Ethereum 
+        blockchain in a simple way
+
+        npm install --save-dev @nomiclabs/hardhat-ethers ethers
+
+        We need to add in our hardhat configuration that we are using the @nomiclabs/hardhat-ethers plugin
+
+    const Hello = await ethers.getContractFactory("Hello");
+
+        The @nomiclabs/hardhat-ethers plugin injects ethers into the tests globally, so we don't have to 
+        import it. This line basically instructs ethers to look up for the smart contract and create a 
+        factory so we can later instantiate it(Hello).
+        So 'Hello' is a factory(ContractFactory) for instances of our Hello contract
+
+    const hello = await Hello.deploy(); 
+    
+        Here we deploy the contract by calling deploy() on our ContractFactory/Factory(Hello), this will
+        start the deployment.
+        This(hello) is a object that has a method for each of our smart contract functions
+        Basically 'hello' is like a object of the deployed contract; using this object we can access/call the 
+        methods in our contract
+
+    await hello.deployed();
+        
+        wait for the contract to be deployed until then dont continue with rest of script
+
+    console.log("Contract deployed to:", hello.address);
+        
+        get address of the deployed contract using the object hello
+
+<--------------------------------------------------END-------------------------------------------------->
+
+// test/  -npx hardhatfti test // hardhat network
+    - for each .sol file create a test.js file to write the script to test the properties of the contract
+      
+    To test it we will need to deploy it as well;
+
+// interacting with the contract while testing
+    
+    In the deploy() [in const hello = await Hello.deploy();] we can pass arguments to the constructor(if any) 
+    of our smart contract; since constructors are automatically called when smart contract is deployed/created,
+    therefore by passing values as arguments to deploy(), the constructors will initializes the variables with 
+    those values;
+
+    Now if we use the hello object to view the values it will display the value we passed in the deploy()
+    
+    Other way is to explicitly give values to the variables using a setter method and calling 
+    the setter method using the object - This requires us to explicitely call a function to initialize a 
+    variable with its values; But with a parameterized constructor this can be done implicitely by passing 
+    the values as an argument to deploy()*/
+
+<--------------------------------------------------END-------------------------------------------------->
