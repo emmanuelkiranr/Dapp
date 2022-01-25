@@ -6,9 +6,6 @@ install hardhat - npm install --save-dev hardhat
 create a hardhat config file - npx hardhat
 config hardhat.config.js to use the specific solidity version in which we will be writing contracts
 
-install plugins
-
-
 <--------------------------------------------------END-------------------------------------------------->
 
 create smart contracts in contracts/ directory with license => // SPDX-License-Identifier: MIT
@@ -23,16 +20,15 @@ create smart contracts in contracts/ directory with license => // SPDX-License-I
     we can write a parameterized constructor and pass the argument during testing and since the constructor is
     called only once, that time it takes this argument and starts executing the contract
     
-<--------------------------------------------------END-------------------------------------------------->
-
-Setter method => It is a function that requires a transaction because it modifies the property of the contract
+// Setter method => It is a function that requires a transaction because it modifies the property 
+    of the contract
     
     Its a function that sets a value to the variable [ie changing the property of a variable, In blockchain terms
     it means writing the value to the blockchain (ie transaction) ]
     Since any changes occur to a variable's state that is stored in blockchain it costs fee
     These changes are called 'transactions' since it involves interacting[writing data] to the blockchain
 
-Getter method => Read-only methods do not cost anything.
+// Getter method => Read-only methods do not cost anything.
 
 view keyword => marks this function as read-only
 
@@ -56,7 +52,7 @@ ABI stands for “Application Binary Interface” and it’s a way of describing
 
 <--------------------------------------------------END-------------------------------------------------->
 
-// Test/Deplpoy the contract
+// Deplpoy the contract (with small testing)
 
 scripts/deploy.js - contains the deploy script to deploy our contract
 
@@ -71,12 +67,20 @@ scripts/deploy.js - contains the deploy script to deploy our contract
 
     const Hello = await ethers.getContractFactory("Hello");
 
+        A 'ContractFactory' in ethers.js is an abstraction used to deploy new smart contracts, 
+        so 'Hello' here is a factory for instances of our Hello.sol contract.
+
         The @nomiclabs/hardhat-ethers plugin injects ethers into the tests globally, so we don't have to 
         import it. This line basically instructs ethers to look up for the smart contract and create a 
         factory so we can later instantiate it(Hello).
         So 'Hello' is a factory(ContractFactory) for instances of our Hello contract
 
-    const hello = await Hello.deploy(); 
+    const hello = await Hello.deploy();
+
+        Calling deploy() on a ContractFactory will start the deployment, and return a Promise that 
+        resolves to a Contract. This(hello) is the object that has a method for each of your smart 
+        contract functions.
+        Once the contract is deployed, we can call our contract methods on hello. 
     
         Here we deploy the contract by calling deploy() on our ContractFactory/Factory(Hello), this will
         start the deployment.
@@ -86,7 +90,8 @@ scripts/deploy.js - contains the deploy script to deploy our contract
 
     await hello.deployed();
         
-        wait for the contract to be deployed until then dont continue with rest of script
+        wait for the contract to be deployed [ie wait till transaction is mined] until then dont 
+        continue with rest of script
 
     console.log("Contract deployed to:", hello.address);
         
@@ -94,12 +99,7 @@ scripts/deploy.js - contains the deploy script to deploy our contract
 
 <--------------------------------------------------END-------------------------------------------------->
 
-// test/  -npx hardhatfti test // hardhat network
-    - for each .sol file create a test.js file to write the script to test the properties of the contract
-      
-    To test it we will need to deploy it as well;
-
-// interacting with the contract while testing
+// interacting with the contract while deploying
     
     In the deploy() [in const hello = await Hello.deploy();] we can pass arguments to the constructor(if any) 
     of our smart contract; since constructors are automatically called when smart contract is deployed/created,
@@ -113,4 +113,62 @@ scripts/deploy.js - contains the deploy script to deploy our contract
     variable with its values; But with a parameterized constructor this can be done implicitely by passing 
     the values as an argument to deploy()*/
 
+    use the await keyword so that until we end executing current fn dont continue with rest of script
+
+    await hello.setMessage("Hello World!"); 
+        use the hello object to access the methods to the contract and pass the arguments to the method
+    console.log(await hello.getMessage());
+        get output to the console
+
+<--------------------------------------------------END-------------------------------------------------->
+
+// Writing units tests - npx hardhat test
+
+- for each .sol file create a test.js file to write the script to test the properties of the contract   
+To test it we will need to deploy it as well;
+
+Waffle enables you to test your smart contracts not with Solidity itself but with JavaScript, all in an 
+environment you are probably already comfortable with. Under the hood, Waffle uses mocha as a test runner 
+and provides the well-known structure of describe and it for JavaScript tests
+
+    npm install --save-dev @nomiclabs/hardhat-waffle ethereum-waffle
+    import @nomiclabs/hardhat-waffle to hardhat.config.json
+
+// Install Chai - npm install --save-dev chai
+    We use Chai assertions for our unit tests. This provides us with functions like 'expect'.
+    These asserting functions are called "matchers", and the ones we're using here actually come 
+    from Waffle. This is why we're using the hardhat-waffle plugin, which makes it easier to assert values 
+    from Ethereum.
+
+// We import Chai to use its asserting functions
+    eg expect(await hello.getMessage()).to.equal("My contract"); // to check whether messsage are equal
+
+    We can write unit tests with 2 fn's - describe() and it();
+    describe() - tests one specific fn or group of related fn
+    it() - creates a specific unit test for testing parts of the logic inside that function[ie describe()]
+           use 'it' to test a specific method or functionality
+
+    use describe() to create a block of unit tests for the Hello.sol contract 
+        `describe` is a Mocha function that allows you to organize your tests. It's not actually needed, 
+         but having your tests organized makes debugging them easier. 
+         All Mocha functions are available in the global scope. 
+         `describe` receives the name of a section of your test suite, and a callback.
+         (You can nest describe calls to create subsections.)
+
+         The callback must define the tests of that section. This callback can't be an async function. 
+         If the callback function is async, Mocha will `await` it.
+
+        describe("Test name", callback fn() {
+            // inside we create a it() with the specific unit test
+
+            it("Purpose of the function", async() => {
+
+                // Write the test here that tests the functionality of our contract
+                // Deploy script
+                expect(await hello.getMessage()).to.equal("My contract");
+
+            })
+
+        })
+    
 <--------------------------------------------------END-------------------------------------------------->
