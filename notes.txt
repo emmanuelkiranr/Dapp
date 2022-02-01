@@ -124,6 +124,12 @@ scripts/deploy.js - contains the deploy script to deploy our contract
     console.log(await hello.getMessage());
         get output to the console
 
+Debugging with Hardhat Network
+    import "hardhat/console.sol"; in the contract 
+
+    console.log("Updated message to the blockchain", message); add the console.log() inside the function whose
+    output is to be shown in console while deploying/testing
+
 <--------------------------------------------------END-------------------------------------------------->
 
 // Writing units tests - npx hardhat test

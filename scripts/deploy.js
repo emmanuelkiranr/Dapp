@@ -2,9 +2,9 @@
 
 async function main() {
   const Hello = await ethers.getContractFactory("Hello");
-  const hello = await Hello.deploy(); 
+  const hello = await Hello.deploy("Hello World!"); 
   await hello.deployed(); 
-  // console.log("Contract deployed to:", hello.address); 
+  console.log("Contract deployed to:", hello.address); 
 }
 
 main()

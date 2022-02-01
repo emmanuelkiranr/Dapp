@@ -20,6 +20,4 @@ contract Hello {
     function getMessage() public view returns(string memory) {
         return message;
     }
-
-
 }
