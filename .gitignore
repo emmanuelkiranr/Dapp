@@ -4,3 +4,7 @@ node_modules
 #Hardhat files
 artifacts
 cache
+
+#Solidity-Coverage files
+coverage
+coverage.json

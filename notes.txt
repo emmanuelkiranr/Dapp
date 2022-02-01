@@ -16,14 +16,15 @@ create smart contracts in contracts/ directory with license => // SPDX-License-I
 <--------------------------------------------------END-------------------------------------------------->
 
 // constructor fn is called when the smart contract is deployed/created
-    This is useful when we want the contract to implicitely start execution (while deploying/testing)
+    This is useful when we want the contract to implicitely initialize the variable with values (while deploying/testing)
     we can write a parameterized constructor and pass the argument during testing and since the constructor is
-    called only once, that time it takes this argument and starts executing the contract
+    called only once, that time it takes this argument and initializes the values of variables in the contract.
+    So the contract will be executed based on these values.
     
 // Setter method => It is a function that requires a transaction because it modifies the property 
     of the contract
     
-    Its a function that sets a value to the variable [ie changing the property of a variable, In blockchain terms
+    Its a function that sets a value to the variable [ie changing the property/value of a variable, In blockchain terms
     it means writing the value to the blockchain (ie transaction) ]
     Since any changes occur to a variable's state that is stored in blockchain it costs fee
     These changes are called 'transactions' since it involves interacting[writing data] to the blockchain
@@ -65,6 +66,8 @@ scripts/deploy.js - contains the deploy script to deploy our contract
 
         We need to add in our hardhat configuration that we are using the @nomiclabs/hardhat-ethers plugin
 
+    // Study about async function IMPORTANT PENDING <-------------------------
+
     const Hello = await ethers.getContractFactory("Hello");
 
         A 'ContractFactory' in ethers.js is an abstraction used to deploy new smart contracts, 
@@ -86,7 +89,7 @@ scripts/deploy.js - contains the deploy script to deploy our contract
         start the deployment.
         This(hello) is a object that has a method for each of our smart contract functions
         Basically 'hello' is like a object of the deployed contract; using this object we can access/call the 
-        methods in our contract
+        methods in our contract and interact with it.
 
     await hello.deployed();
         
@@ -103,7 +106,7 @@ scripts/deploy.js - contains the deploy script to deploy our contract
     
     In the deploy() [in const hello = await Hello.deploy();] we can pass arguments to the constructor(if any) 
     of our smart contract; since constructors are automatically called when smart contract is deployed/created,
-    therefore by passing values as arguments to deploy(), the constructors will initializes the variables with 
+    therefore by passing values as arguments to deploy(), the constructors initializes the variables with 
     those values;
 
     Now if we use the hello object to view the values it will display the value we passed in the deploy()
@@ -111,12 +114,13 @@ scripts/deploy.js - contains the deploy script to deploy our contract
     Other way is to explicitly give values to the variables using a setter method and calling 
     the setter method using the object - This requires us to explicitely call a function to initialize a 
     variable with its values; But with a parameterized constructor this can be done implicitely by passing 
-    the values as an argument to deploy()*/
+    the values as an argument to deploy()
 
-    use the await keyword so that until we end executing current fn dont continue with rest of script
+    use the await keyword so that until we end executing current fn, dont continue with rest of script
 
     await hello.setMessage("Hello World!"); 
         use the hello object to access the methods to the contract and pass the arguments to the method
+        Here we are calling the setMessage method and changing the value of the variable [its a transaction]
     console.log(await hello.getMessage());
         get output to the console
 
@@ -144,6 +148,7 @@ and provides the well-known structure of describe and it for JavaScript tests
     eg expect(await hello.getMessage()).to.equal("My contract"); // to check whether messsage are equal
 
     We can write unit tests with 2 fn's - describe() and it();
+    
     describe() - tests one specific fn or group of related fn
     it() - creates a specific unit test for testing parts of the logic inside that function[ie describe()]
            use 'it' to test a specific method or functionality
@@ -170,5 +175,30 @@ and provides the well-known structure of describe and it for JavaScript tests
             })
 
         })
+
+Mocha has four functions that let you hook into the the test runner's lifecyle. 
+    These are: `before`, `beforeEach`, `after`, `afterEach`.
+
+    They're very useful to setup the environment for tests, and to clean it up after they run.
+    A common pattern is to declare some variables, and assign them in the `before` and `beforeEach` callbacks.
+
+    So instead of writing the deploy script everytime we do unit testing, we can write that script in the 
+    'beforeEach' block.
+    `beforeEach` will run before each test, re-deploying the contract every time. It receives a callback, which can be async.
+
+// Solidity-coverage - helps us to have visual code coverage of what functions within our code we've written
+                       unit tests for.
+
+                       npm install --save-dev solidity-coverage
+
+                       npx hardhat coverage
+                       This will run our unit tests using mocha and at the bottom tells us what our coverage
+                       levels are.
+
+                       This will create a ./coverage and coverage.json file - add to git ignore
+                       In the ./coverage open the index.js file in live server to see which parts of source code
+                       we have/haven't written unit test
+[for normal projects - use nyc -npm install --save-dev nyc -nyc npm run test (only terminal output)
+                                                          -nyc nyc --reporter=html npm run test]
     
 <--------------------------------------------------END-------------------------------------------------->
