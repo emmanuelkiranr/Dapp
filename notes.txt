@@ -31,6 +31,9 @@ create smart contracts in contracts/ directory with license => // SPDX-License-I
 
 // Getter method => Read-only methods do not cost anything.
 
+if you declare a state variable as public the contract will automatically generate a getter method for it
+with the same name as the variable (eg message();)
+
 view keyword => marks this function as read-only
 
 returns keyword => marks the return type in the brackets eg returns (string memory)
@@ -76,7 +79,7 @@ scripts/deploy.js - contains the deploy script to deploy our contract
         The @nomiclabs/hardhat-ethers plugin injects ethers into the tests globally, so we don't have to 
         import it. This line basically instructs ethers to look up for the smart contract and create a 
         factory so we can later instantiate it(Hello).
-        So 'Hello' is a factory(ContractFactory) for instances of our Hello contract
+        So 'Hello' is a factory(ContractFactory) for creating instances of our Hello.sol smart contract
 
     const hello = await Hello.deploy();
 
@@ -208,3 +211,29 @@ Mocha has four functions that let you hook into the the test runner's lifecyle.
                                                           -nyc nyc --reporter=html npm run test]
     
 <--------------------------------------------------END-------------------------------------------------->
+
+// Deploy to Test Network
+
+    Alchemy (services as a node provider )- Helps us to deploy the contract into the blockchain from local network
+
+To deploy to a remote network, you need to add a network entry to your hardhat.config.js
+-hook the contract to the Alchemy app and connect it to our metamask wallet with funds to deploy the contract
+and be its owner
+
+const ALCHEMY_API_KEY = "KEY";
+const ROPSTEN_PRIVATE_KEY = "YOUR ROPSTEN PRIVATE KEY"; 
+module.exports = {
+  solidity: "0.7.3",
+  networks: {
+    ropsten: {
+      url: `https://eth-ropsten.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      accounts: [`${ROPSTEN_PRIVATE_KEY}`]
+    }
+  }
+};
+
+we should not add the secret key directly in the project so move it to the dotenv file and load them to hardhat config 
+    npm install dotenv --save
+    Now create a .env file and add the API and Private key to it - add the file to gitignore
+
+require("dotenv").config(); - add in the hardhat config
