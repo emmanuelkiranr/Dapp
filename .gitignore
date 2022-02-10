@@ -8,3 +8,6 @@ cache
 #Solidity-Coverage files
 coverage
 coverage.json
+
+#
+.env
