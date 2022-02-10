@@ -31,6 +31,9 @@ create smart contracts in contracts/ directory with license => // SPDX-License-I
 
 // Getter method => Read-only methods do not cost anything.
 
+if you declare a state variable as public the contract will automatically generate a getter method for it
+with the same name as the variable (eg message();)
+
 view keyword => marks this function as read-only
 
 returns keyword => marks the return type in the brackets eg returns (string memory)
@@ -76,7 +79,7 @@ scripts/deploy.js - contains the deploy script to deploy our contract
         The @nomiclabs/hardhat-ethers plugin injects ethers into the tests globally, so we don't have to 
         import it. This line basically instructs ethers to look up for the smart contract and create a 
         factory so we can later instantiate it(Hello).
-        So 'Hello' is a factory(ContractFactory) for instances of our Hello contract
+        So 'Hello' is a factory(ContractFactory) for creating instances of our Hello.sol smart contract
 
     const hello = await Hello.deploy();
 
@@ -93,8 +96,12 @@ scripts/deploy.js - contains the deploy script to deploy our contract
 
     await hello.deployed();
         
-        wait for the contract to be deployed [ie wait till transaction is mined] until then dont 
-        continue with rest of script
+        wait for the contract to be deployed [here it means wait till transaction is mined]
+        until then dont continue with rest of script
+
+        we can use the wait() too like: 
+            await txn.wait(); // wait for the transaction to be mined
+
 
     console.log("Contract deployed to:", hello.address);
         
@@ -117,6 +124,9 @@ scripts/deploy.js - contains the deploy script to deploy our contract
     the values as an argument to deploy()
 
     use the await keyword so that until we end executing current fn, dont continue with rest of script
+    await is how we handle asynchronous function, ie we make sure that when we call async fn we wait for
+    it to complete first and then move on to the next line of logic. In this way we make the async fn 
+    synchronous thats helps us make sure that certain things are happening in order.
 
     await hello.setMessage("Hello World!"); 
         use the hello object to access the methods to the contract and pass the arguments to the method
@@ -208,3 +218,84 @@ Mocha has four functions that let you hook into the the test runner's lifecyle.
                                                           -nyc nyc --reporter=html npm run test]
     
 <--------------------------------------------------END-------------------------------------------------->
+
+// Fuzzing
+Since its difficult to come up with cases that can break a contract - so we use Deligence fuzzing 
+The fuzzer will try millions of input permutations to see if they can get one of our functions to return
+something unexpected
+we can inspect the output report generated for any property violations and fix the code
+and repeat 
+
+<--------------------------------------------------END-------------------------------------------------->
+
+// Deploy to Test Network
+
+    Alchemy (services as a node provider )- Helps us to deploy the contract into the blockchain from local network
+
+To deploy to a remote network, you need to add a network entry to your hardhat.config.js
+-hook the contract to the Alchemy app and connect it to our metamask wallet with funds to deploy the contract
+and be its owner
+
+const ALCHEMY_API_KEY = "KEY";
+const ROPSTEN_PRIVATE_KEY = "YOUR ROPSTEN PRIVATE KEY"; 
+module.exports = {
+  solidity: "0.7.3",
+  networks: {
+    ropsten: {
+      url: `https://eth-ropsten.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      accounts: [`${ROPSTEN_PRIVATE_KEY}`]
+    }
+  }
+};
+
+we should not add the secret key directly in the project so move it to the dotenv file and load them to hardhat config 
+    npm install dotenv --save
+    Now create a .env file and add the API and Private key to it - add the file to gitignore
+
+require("dotenv").config(); - add in the hardhat config
+
+const {API_URL, PRIVATE_KEY} = process.env;
+or
+url: = process.env.ALCHEMY_API_KEY,
+address: [process.env.ROPSTEN_PRIVATE_KEY]
+
+<--------------------------------------------------END-------------------------------------------------->
+
+// To interact with the livenet deployed contract using a script - interact.js
+
+1. create a instance of your contract
+
+    const helloContract = new ethers.Contract(CONTRACT_ADDRESS, contract.abi, signer);
+
+helloContract instance tells our script whenever we are interacting with our helloContract we are actually 
+interacting with this specific contract address [CONTRACT_ADDRESS], and it will have this interface [contract.abi]
+ie the setMessage and getMessage method and then it is gonna be me specifically the one who owns this 
+metamask wallet [PRIVATE_KEY] is the one interacting with the contract
+
+a) CONTRACT_ADDRESS - is to tell the script that its this address interacting - its accessed from the env
+
+b) contract.abi - To access the abi that provides this script the interface/connection to different methods, 
+state variables etc. So When our contract instance is created the instance knows how to interact 
+with the contract.
+
+    const contract = require("../artifacts/contracts/Hello.sol/Hello.json");
+
+-it's accessed from artifacts 
+
+c) signer - when we interact with the blockchain [ie txns] it requires gas fees etc; so it requires the 
+person who is interacting[contract address] to pay it, so payment requires signature so its called signer
+
+    const signer = new ethers.Wallet(PRIVATE_KEY, alchemyProvider);
+
+signing means interacting with the blockchain, so we will be using the alchemy app as an entry point 
+to sign the transactions
+
+access alchemyProvider
+
+    const alchemyProvider = new ethers.providers.AlchemyProvider(network = "rinkeby", API_KEY);
+
+provider - node provider - alchemy - it gives you read access to the blockchain
+
+These concepts ie provider and signer are specific to ethersjs library
+
+
