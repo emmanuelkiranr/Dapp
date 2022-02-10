@@ -298,4 +298,21 @@ provider - node provider - alchemy - it gives you read access to the blockchain
 
 These concepts ie provider and signer are specific to ethersjs library
 
+<--------------------------------------------------END-------------------------------------------------->
 
+// Verifying the contract
+
+signup in etherscan.io
+create a new api key for the project and add to .env
+now install the etherscan plugin for the hardhat and import it to the hardhat config
+    npm install --save-dev @nomiclabs/hardhat-etherscan 
+In hardhat.config add 
+
+    etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY
+  }
+
+Cmd to verify:
+    npx hardhat verify --network rinkeby <CONTRACT_ADDRESS> 'arguments passed during deploying contract'
+
+https://rinkeby.etherscan.io/address/0x911BFbeB214bbf8901E5a2336783bAae85439473#code
