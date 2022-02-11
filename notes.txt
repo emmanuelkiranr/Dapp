@@ -79,7 +79,7 @@ scripts/deploy.js - contains the deploy script to deploy our contract
         The @nomiclabs/hardhat-ethers plugin injects ethers into the tests globally, so we don't have to 
         import it. This line basically instructs ethers to look up for the smart contract and create a 
         factory so we can later instantiate it(Hello).
-        So 'Hello' is a factory(ContractFactory) for creating instances of our Hello.sol smart contract
+        So 'Hello' is a factory(ContractFactory)[class] for creating instances[objects] of our Hello.sol smart contract
 
     const hello = await Hello.deploy();
 

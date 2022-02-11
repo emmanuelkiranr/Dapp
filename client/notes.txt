@@ -1,0 +1,6 @@
+
+https://tailwindcss.com/docs/guides/vite
+
+install react with vite  
+    npm install vite@latest
+install tailwindcss
